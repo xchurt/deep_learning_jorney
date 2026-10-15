@@ -6,15 +6,15 @@ def make_blob(n,center,noise=0.6):#生成n个中心点center,噪声noise
 c0=make_blob(80,[-3,-3])
 c1=make_blob(80,[3,-3])
 c2=make_blob(80,[0,3])
-x=np.vstack([c0,c1,c2])
+x=np.vstack([c0,c1,c2])#合并为80,3的x数据
 y=np.array([0]*80+[1]*80+[2]*80)
-y_onehot=np.eye(3)[y]
+y_onehot=np.eye(3)[y]#单位矩阵以y为索引变为onehot向量
 print(f"形状{x.shape}y_onehot形状:{y_onehot.shape}")
-def softmax(z):
+def softmax(z):#把实数logits转为0-1的概率 同行概率和为1
     z_shift=z-np.max(z,axis=1,keepdims=True)
     exp_z=np.exp(z_shift)#取e的z_shift次方
     return exp_z/np.sum(exp_z,axis=1,keepdims=True)
-n_features=x.shape[1]
+n_features=x.shape[1]#特征维度=2(x1,x2)
 n_classes=3
 w=np.random.randn(n_features,n_classes)*0.01
 b=np.zeros((1,n_classes))
@@ -23,16 +23,20 @@ n_epochs=1000
 losses=[]
 for epoch in range(n_epochs+1):
     z=x@w+b
-    probs=softmax(z)
+    probs=softmax(z)#softmax得到类别概率shape(240,3)
+    #多分类交叉熵损失CE
+    #axis=1 在每个样本的内部求和区负 再求平均
+    #+1e8:极小值 防止probs接近0同时对结果几乎无影响
     loss=-np.mean(np.sum(y_onehot*np.log(probs+1e-8),axis=1))
     losses.append(loss)
+    #softmax+交叉熵后的梯度dL/dw=(x.T@(probs-y_onehot))/m
     grad_w=(x.T@(probs-y_onehot))/len(x)
     grad_b=np.mean(probs-y_onehot,axis=0)
     w-=lr*grad_w
     b-=lr*grad_b
     if epoch%200==0:
-        preds=np.argmax(probs,axis=1)
-        acc=np.mean(preds==y)
+        preds=np.argmax(probs,axis=1)#以最大概率为索引作类别预测
+        acc=np.mean(preds==y)#预测与真实相等的比例:准确率
         print(f"Epoch{epoch:4d}|loss={loss:.4f}|acc={acc:.3f}")
 print(f"\n最终w:\n{w}")
 print(f"最终b:{b}")
