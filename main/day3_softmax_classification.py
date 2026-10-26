@@ -1,17 +1,19 @@
 import matplotlib.pyplot as plt
 import numpy as np
+plt.rcParams['font.sans-serif'] = ['SimHei']
+plt.rcParams['axes.unicode_minus'] = False
 np.random.seed(42)
 def make_blob(n,center,noise=0.6):#生成n个中心点center,噪声noise
     return np.random.randn(n,2)*noise+np.array(center)
 c0=make_blob(80,[-3,-3])
 c1=make_blob(80,[3,-3])
 c2=make_blob(80,[0,3])
-x=np.vstack([c0,c1,c2])#合并为80,3的x数据
-y=np.array([0]*80+[1]*80+[2]*80)
+x=np.vstack([c0,c1,c2])#合并为80,3的x数据 行增加
+y=np.array([0]*80+[1]*80+[2]*80)#前80 0中80 1后80 2，列增加
 y_onehot=np.eye(3)[y]#单位矩阵以y为索引变为onehot向量
 print(f"形状{x.shape}y_onehot形状:{y_onehot.shape}")
 def softmax(z):#把实数logits转为0-1的概率 同行概率和为1
-    z_shift=z-np.max(z,axis=1,keepdims=True)
+    z_shift=z-np.max(z,axis=1,keepdims=True)#-max(z)防止指数爆炸
     exp_z=np.exp(z_shift)#取e的z_shift次方
     return exp_z/np.sum(exp_z,axis=1,keepdims=True)
 n_features=x.shape[1]#特征维度=2(x1,x2)
