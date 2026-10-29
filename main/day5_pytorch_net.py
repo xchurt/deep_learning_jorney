@@ -52,11 +52,9 @@ def plot_boundary(net, X):
                          np.linspace(y_min, y_max, 300))
     grid = np.c_[xx.ravel(), yy.ravel()].astype(np.float32)
     grid_t = torch.from_numpy(grid)
-
     with torch.no_grad():
         probs = torch.softmax(net(grid_t), dim=1)
         labels = (probs[:, 1] > 0.5).numpy().reshape(xx.shape).astype(int)
-
     plt.figure(figsize=(6, 5))
     plt.contourf(xx, yy, labels, levels=2, cmap="Pastel1", alpha=0.7)
     plt.scatter(X[y == 0, 0], X[y == 0, 1], c="blue", s=12, label="inner")
@@ -65,9 +63,7 @@ def plot_boundary(net, X):
     plt.legend()
     plt.savefig("day5_boundary.png")
     plt.close()
-
 plot_boundary(net, x)
-
 plt.figure(figsize=(6, 3))
 plt.plot(losses)
 plt.title("training loss")
